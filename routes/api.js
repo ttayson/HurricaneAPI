@@ -15,7 +15,7 @@ router.post("/add", async (req, res) => {
   data.append("email", req.body.login);
   data.append("pass", req.body.pass);
 
-  var config = {
+  var getDomainconfig = {
     method: "post",
     url: "https://dns.he.net/",
     headers: {
@@ -25,7 +25,7 @@ router.post("/add", async (req, res) => {
     data: data,
   };
 
-  axios(config).then(function (response) {
+  axios(getDomainconfig).then(function (response) {
     const $ = cheerio.load(response.data);
 
     loginVerify = $('div[id="dns_err"]').text();
@@ -59,44 +59,66 @@ router.post("/add", async (req, res) => {
       res.status(404).send({ error: "Domain not found" });
       return;
     }
-    res.json(dataDomain);
+
+    var data = new FormData();
+
+    data.append("email", req.body.login);
+    data.append("pass", req.body.pass);
+    data.append("account", "");
+    data.append("menu", "edit_zone");
+    data.append("Type", req.body.type);
+    data.append("hosted_dns_zoneid", result.id);
+    data.append("hosted_dns_recordid", "");
+    data.append("hosted_dns_editzone", "1");
+    data.append("Priority", "");
+    data.append("Name", req.body.name);
+    data.append("Content", req.body.data);
+    data.append("TTL", req.body.ttl);
+    data.append("hosted_dns_editrecord", "Submit");
+
+    const config = {
+      method: "POST",
+      url: "https://dns.he.net/",
+      params: {
+        hosted_dns_zoneid: result.id,
+        menu: "edit_zone",
+        hosted_dns_editzone: "",
+      },
+      headers: {
+        cookie: Cookie,
+        ...data.getHeaders(),
+      },
+      data: data,
+    };
+
+    axios(config).then(function (response) {
+      const $ = cheerio.load(response.data);
+
+      loginVerify = $('div[id="dns_status"]').text();
+
+      if (
+        loginVerify ==
+        "Successfully added new record to " + req.body.domain
+      ) {
+        res.status(200).send({
+          success: "Successfully added new record to " + req.body.domain,
+        });
+        return;
+      }
+
+      statusError = $('div[id="dns_err"]').text();
+      if (
+        statusError ==
+        "Insert failed.  Unable to update.  That record already exists."
+      ) {
+        res.status(404).send({
+          error:
+            "Insert failed.  Unable to update.  That record already exists.",
+        });
+        return;
+      }
+    });
   });
-
-  // data.append("account", "");
-  // data.append("menu", "edit_zone");
-  // data.append("Type", "A");
-  // data.append("hosted_dns_zoneid", "934688");
-  // data.append("hosted_dns_recordid", "");
-  // data.append("hosted_dns_editzone", "1");
-  // data.append("Priority", "");
-  // data.append("Name", "olaaaaa.ttayson.cf");
-  // data.append("Content", "20.50.50.50");
-  // data.append("TTL", "300");
-  // data.append("hosted_dns_editrecord", "Submit");
-
-  // const config = {
-  //   method: "POST",
-  //   url: "https://dns.he.net/",
-  //   params: {
-  //     hosted_dns_zoneid: "934688",
-  //     menu: "edit_zone",
-  //     hosted_dns_editzone: "",
-  //   },
-  //   headers: {
-  //     cookie: Cookie,
-  //     ...data.getHeaders(),
-  //   },
-  //   data: data,
-  // };
-  // axios(config).then(function (response) {
-  //   const $ = cheerio.load(response.data);
-
-  //   loginVerify = $('div[id="dns_status"]').text();
-  //   console.log(loginVerify);
-  //   if (loginVerify == "Successfully added new record to ttayson.cf") {
-  //     res.status(401).send({ error: "Login error" });
-  //     return;
-  //   }
 });
 
 router.get("/update", (req, res) => {
