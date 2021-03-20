@@ -4,17 +4,107 @@ const cheerio = require("cheerio");
 var axios = require("axios");
 var FormData = require("form-data");
 
+const { getCookie } = require("../helpers/Cookie");
+
 const router = express.Router();
 
-router.get("/add", (req, res) => {
-  res.json({ info: "teste" });
+router.post("/add", async (req, res) => {
+  var Cookie = await getCookie();
+  var data = new FormData();
+
+  data.append("email", req.body.login);
+  data.append("pass", req.body.pass);
+
+  var config = {
+    method: "post",
+    url: "https://dns.he.net/",
+    headers: {
+      Cookie: Cookie,
+      ...data.getHeaders(),
+    },
+    data: data,
+  };
+
+  axios(config).then(function (response) {
+    const $ = cheerio.load(response.data);
+
+    loginVerify = $('div[id="dns_err"]').text();
+    if (loginVerify == "Incorrect") {
+      res.status(401).send({ error: "Login error" });
+      return;
+    }
+
+    value = $("img.Tips").attr({
+      alt: "delete",
+    });
+
+    var dataDomain = [];
+
+    value.each((i, elem) => {
+      if (
+        value[i].attribs.name != undefined &&
+        value[i].attribs.value != undefined
+      ) {
+        dataDomain.push({
+          domain: value[i].attribs.name,
+          id: value[i].attribs.value,
+        });
+      }
+    });
+
+    const result = dataDomain.find(
+      (domain) => domain.domain == req.body.domain
+    );
+    if (!result) {
+      res.status(404).send({ error: "Domain not found" });
+      return;
+    }
+    res.json(dataDomain);
+  });
+
+  // data.append("account", "");
+  // data.append("menu", "edit_zone");
+  // data.append("Type", "A");
+  // data.append("hosted_dns_zoneid", "934688");
+  // data.append("hosted_dns_recordid", "");
+  // data.append("hosted_dns_editzone", "1");
+  // data.append("Priority", "");
+  // data.append("Name", "olaaaaa.ttayson.cf");
+  // data.append("Content", "20.50.50.50");
+  // data.append("TTL", "300");
+  // data.append("hosted_dns_editrecord", "Submit");
+
+  // const config = {
+  //   method: "POST",
+  //   url: "https://dns.he.net/",
+  //   params: {
+  //     hosted_dns_zoneid: "934688",
+  //     menu: "edit_zone",
+  //     hosted_dns_editzone: "",
+  //   },
+  //   headers: {
+  //     cookie: Cookie,
+  //     ...data.getHeaders(),
+  //   },
+  //   data: data,
+  // };
+  // axios(config).then(function (response) {
+  //   const $ = cheerio.load(response.data);
+
+  //   loginVerify = $('div[id="dns_status"]').text();
+  //   console.log(loginVerify);
+  //   if (loginVerify == "Successfully added new record to ttayson.cf") {
+  //     res.status(401).send({ error: "Login error" });
+  //     return;
+  //   }
 });
 
 router.get("/update", (req, res) => {
   res.json({ info: "teste" });
 });
 
-router.post("/list", (req, res) => {
+router.post("/list", async (req, res) => {
+  var Cookie = await getCookie();
   var data = new FormData();
   data.append("email", req.body.login);
   data.append("pass", req.body.pass);
@@ -23,6 +113,7 @@ router.post("/list", (req, res) => {
     method: "post",
     url: "https://dns.he.net/",
     headers: {
+      Cookie: Cookie,
       ...data.getHeaders(),
     },
     data: data,
@@ -31,17 +122,25 @@ router.post("/list", (req, res) => {
   axios(config)
     .then(function (response) {
       const $ = cheerio.load(response.data);
+
+      loginVerify = $('div[id="dns_err"]').text();
+      if (loginVerify == "Incorrect") {
+        res.status(401).send({ error: "Login error" });
+        return;
+      }
+
       value = $("img.Tips").attr({
         alt: "delete",
       });
 
-      var date = [];
+      var dataDomain = [];
+
       value.each((i, elem) => {
         if (
           value[i].attribs.name != undefined &&
           value[i].attribs.value != undefined
         ) {
-          date.push({
+          dataDomain.push({
             domain: value[i].attribs.name,
             id: value[i].attribs.value,
           });
@@ -52,8 +151,16 @@ router.post("/list", (req, res) => {
         typeof req.body.domain == undefined ||
         req.body.domain == null
       ) {
-        res.json(date);
-      } else {
+        res.json(dataDomain);
+      } else if (req.body.domain && req.body.domain != null) {
+        const result = dataDomain.find(
+          (domain) => domain.domain == req.body.domain
+        );
+        if (!result) {
+          res.status(404).send({ error: "Domain not found" });
+          return;
+        }
+
         var data = new FormData();
         data.append("email", req.body.login);
         data.append("pass", req.body.pass);
@@ -61,10 +168,11 @@ router.post("/list", (req, res) => {
         var config = {
           method: "get",
           url:
-            "https://dns.he.net/index.cgi?hosted_dns_zoneid=934688&menu=edit_zone&hosted_dns_editzone",
+            "https://dns.he.net/index.cgi?hosted_dns_zoneid=" +
+            result.id +
+            "&menu=edit_zone&hosted_dns_editzone",
           headers: {
-            Cookie:
-              "291541a0a47538f8ae75fdef92aca43c56e2b307832d37725210bb8ed950c8e4=1aa2dd6b50e06730c6a9a737c3458aeb",
+            Cookie: Cookie,
             ...data.getHeaders(),
           },
           data: data,
@@ -74,16 +182,16 @@ router.post("/list", (req, res) => {
           const $ = cheerio.load(response.data);
 
           var data = [];
-          value3 = $("td").attr({
+          value = $("td").attr({
             align: "left",
           });
 
-          value3.each((i, elem) => {
+          value.each((i, elem) => {
             try {
-              if (value3[i].children[0].data != undefined) {
-                data.push(value3[i].children[0].data);
+              if (value[i].children[0].data != undefined) {
+                data.push(value[i].children[0].data);
               } else {
-                data.push(value3[i].children[0].children[0].data);
+                data.push(value[i].children[0].children[0].data);
               }
             } catch (error) {}
           });
@@ -92,8 +200,8 @@ router.post("/list", (req, res) => {
 
           length = data.length;
           temp = length / 8;
-
           let i = 0;
+
           do {
             i++;
             list.push({
@@ -104,7 +212,6 @@ router.post("/list", (req, res) => {
               data: data[6],
               id: data[1],
             });
-            console.log(i);
 
             data.splice(0, 8);
           } while (i < temp);
