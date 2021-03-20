@@ -74,6 +74,23 @@ wget --quiet \
   --output-document \
   - http://localhost:3000/api/list
 ```
+### To add
+
+```curl
+curl --request POST \
+  --url http://localhost:3000/api/add \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"login": "LOGIN",
+	"pass": "PASSWORD",
+	"domain": "DOMAIN",
+	"type": "Type",
+	"name": "name",
+	"data": "IP",
+	"ttl": "ttl"
+}'
+```
+
 
 #### Docker
 
