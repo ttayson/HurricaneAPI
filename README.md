@@ -30,6 +30,51 @@ npm install
 npm start
 ```
 
+## Usage
+### > List Domains
+```curl
+curl --request POST \
+  --url http://localhost:3000/api/list \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"login": "ttayson",
+	"pass": "PASSWORD"
+}'
+```
+```wget
+wget --quiet \
+  --method POST \
+  --header 'Content-Type: application/json' \
+  --body-data '{\n	"login": "LOGIN",\n	"pass": "PASSWORD"\n}' \
+  --output-document \
+  - http://localhost:3000/api/list
+ 
+ ```
+
+
+
+### > List all information for a domain
+
+```curl
+curl --request POST \
+  --url http://localhost:3000/api/list \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"login": "LOGIN",
+	"pass": "PASSWORD",
+	"domain": "VALID DOMAI"
+}'
+```
+
+```wget
+wget --quiet \
+  --method POST \
+  --header 'Content-Type: application/json' \
+  --body-data '{\n	"login": "LOGIN",\n	"pass": "PASSWORD",\n	"domain": "VALID DOMAIN"\n}' \
+  --output-document \
+  - http://localhost:3000/api/list
+```
+
 #### Docker
 
 > being implemented
