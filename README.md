@@ -85,7 +85,7 @@ curl --request POST \
 	"pass": "PASSWORD",
 	"domain": "DOMAIN",
 	"type": "Type",
-	"name": "name",
+	"name": "NAME",
 	"data": "",
 	"ttl": "ttl"
 }'
