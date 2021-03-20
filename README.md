@@ -30,6 +30,17 @@ npm install
 npm start
 ```
 
+#### Docker Installation
+
+```sh
+git clone https://github.com/ttayson/HurricaneAPI.git
+cd HurricaneAPI
+docker-compose up -d  --build
+```
+Specify your port to run the instance, the default is 3000
+
+If necessary, change the port in docker-compose
+
 ## Usage
 ### > List Domains
 ```curl
@@ -128,9 +139,7 @@ wget --quiet \
 - 172800
 
 
-#### Docker
 
-> being implemented
 
 ## License
 
