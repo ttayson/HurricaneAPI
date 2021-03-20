@@ -7,7 +7,7 @@
 
 ## Features
 
-| Function | sdsds-- |
+| Function | - Status -|
 | ------ | ------ |
 | List Domain | ✅ |
 | List Hosts | ✅ |
