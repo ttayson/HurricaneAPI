@@ -1,10 +1,10 @@
 version: "3"
 
 services:
-  HurricaneAPI:
+  hurricaneapi:
     #image: ttayson/
     container_name: "HurricaneAPI"
     restart: always
     ports:
-      - 3010:3000
+      - 3000:3000
     build: .
