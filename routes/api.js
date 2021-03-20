@@ -9,6 +9,17 @@ const { getCookie } = require("../helpers/Cookie");
 const router = express.Router();
 
 router.post("/add", async (req, res) => {
+  if (
+    req.body.login == undefined ||
+    req.body.login == "" ||
+    req.body.pass == undefined ||
+    req.body.pass == ""
+  ) {
+    res.status(404).send({
+      success: "incomplete information (Herder JSON Body",
+    });
+    return;
+  }
   var Cookie = await getCookie();
   var data = new FormData();
 
@@ -60,6 +71,41 @@ router.post("/add", async (req, res) => {
       return;
     }
 
+    if (
+      req.body.type == undefined ||
+      req.body.type == "" ||
+      req.body.name == undefined ||
+      req.body.name == "" ||
+      req.body.data == undefined ||
+      req.body.data == "" ||
+      req.body.ttl == undefined ||
+      req.body.ttl == ""
+    ) {
+      res.status(404).send({
+        success: "incomplete information (Herder JSON Body",
+      });
+      return;
+    }
+
+    if (
+      req.body.ttl == "300" ||
+      req.body.ttl == "900" ||
+      req.body.ttl == "1800" ||
+      req.body.ttl == "3600" ||
+      req.body.ttl == "7200" ||
+      req.body.ttl == "14400" ||
+      req.body.ttl == "28800" ||
+      req.body.ttl == "43200" ||
+      req.body.ttl == "86400" ||
+      req.body.ttl == "172800"
+    ) {
+    } else {
+      res.status(404).send({
+        success: "Invalid value (TTL)",
+      });
+      return;
+    }
+
     var data = new FormData();
 
     data.append("email", req.body.login);
@@ -96,24 +142,17 @@ router.post("/add", async (req, res) => {
 
       loginVerify = $('div[id="dns_status"]').text();
 
-      if (
-        loginVerify ==
-        "Successfully added new record to " + req.body.domain
-      ) {
+      if (loginVerify) {
         res.status(200).send({
-          success: "Successfully added new record to " + req.body.domain,
+          success: loginVerify,
         });
         return;
       }
 
       statusError = $('div[id="dns_err"]').text();
-      if (
-        statusError ==
-        "Insert failed.  Unable to update.  That record already exists."
-      ) {
+      if (statusError) {
         res.status(404).send({
-          error:
-            "Insert failed.  Unable to update.  That record already exists.",
+          error: statusError,
         });
         return;
       }
