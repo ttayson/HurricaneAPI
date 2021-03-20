@@ -12,5 +12,5 @@ app.use("/api", api);
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log("Servidor Rodando!!");
+  console.log("Server running!!");
 });

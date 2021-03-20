@@ -1,7 +1,7 @@
 {
   "name": "HurricaneAPI",
   "version": "1.0.0",
-  "description": "",
+  "description": "Api para o serviço DNS da Hurricane",
   "main": "index.js",
   "scripts": {
     "start": "node app.js"
