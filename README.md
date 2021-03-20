@@ -37,7 +37,7 @@ curl --request POST \
   --url http://localhost:3000/api/list \
   --header 'Content-Type: application/json' \
   --data '{
-	"login": "ttayson",
+	"login": "LOGIN",
 	"pass": "PASSWORD"
 }'
 ```
@@ -62,7 +62,7 @@ curl --request POST \
   --data '{
 	"login": "LOGIN",
 	"pass": "PASSWORD",
-	"domain": "VALID DOMAI"
+	"domain": "VALID DOMAIN"
 }'
 ```
 
