@@ -99,6 +99,35 @@ wget --quiet \
   - http://localhost:3000/api/add
 ```
 
+## Approved values in request body
+
+*Types:* 
+- A
+- CNAME
+- ALIAS
+- MX
+- NS
+- TXT
+
+*Name:*
+
+- IP or -HOST or TEXT
+
+
+*TTL:*
+
+- 300
+- 900
+- 1800
+- 3600
+- 7200
+- 14400
+- 28800
+- 43200
+- 86400
+- 172800
+
+
 #### Docker
 
 > being implemented
